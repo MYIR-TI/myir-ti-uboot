@@ -7,20 +7,20 @@
 #include "myb-am62x-dev-common-u-boot.dtsi"
 #include "myb-am62x-dev-binman.dtsi"
 
-&ospi0_pins_default {
+&spi1_pins_default {
 	bootph-pre-ram;
 };
 
-&ospi0 {
+&spi1 {
 	bootph-pre-ram;
 
-	flash@0 {
+	nand@0 {
 		bootph-pre-ram;
 
 		partitions {
 			bootph-pre-ram;
 
-			partition@3fc0000 {
+			partition@0 {
 				bootph-pre-ram;
 			};
 		};
