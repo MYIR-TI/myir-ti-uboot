@@ -16,8 +16,16 @@ config TARGET_AM62L3_EVM
 	select OF_UPSTREAM
 	select OF_SYSTEM_SETUP
 
+config TARGET_MYC_YM62LX
+	bool "MYIR based MYC_YM62LX"
+	select ARM64
+	select BINMAN
+	select OF_UPSTREAM
+	select OF_SYSTEM_SETUP
+
 endchoice
 
 source "board/ti/am62lx/Kconfig"
+source "board/myir/myc_ym62lx/Kconfig"
 
 endif
