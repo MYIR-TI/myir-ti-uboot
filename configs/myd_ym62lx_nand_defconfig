@@ -147,5 +147,6 @@ CONFIG_DM_THERMAL=y
 CONFIG_FS_FAT_MAX_CLUSTSIZE=16384
 CONFIG_SYS_MEM_TOP_HIDE=0x3800000
 CONFIG_SYS_MTD_U_BOOT_OFFS=0x2C0000
+CONFIG_BOOTCOMMAND="run nandargs; run get_kernel_nand; run get_dtb_nand; run run_kern"
 
 #include <configs/am62x_a53_usbdfu.config>
