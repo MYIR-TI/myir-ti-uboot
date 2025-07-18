@@ -145,6 +145,7 @@ CONFIG_SYSRESET=y
 CONFIG_SPL_SYSRESET=y
 CONFIG_DM_THERMAL=y
 CONFIG_FS_FAT_MAX_CLUSTSIZE=16384
+CONFIG_BOOTCOMMAND="run set_emmc_boot_dev; run set_emmc_bootpart; run envboot; run bootcmd_ti_mmc; bootflow scan -lb"
 CONFIG_ENV_SIZE=0x1f000
 CONFIG_ENV_OFFSET=0x680000
 CONFIG_ENV_IS_IN_MMC=y
