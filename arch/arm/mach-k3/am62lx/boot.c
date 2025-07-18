@@ -50,7 +50,7 @@ static u32 get_primary_bootmedia(u32 devstat)
 		return BOOT_DEVICE_MMC1;
 
 	case BOOT_DEVICE_SPI_NAND:
-		return BOOT_DEVICE_SPI_NAND;
+		return BOOT_DEVICE_SPINAND;
 
 	case BOOT_DEVICE_MMC:
 		if ((bootmode_cfg & MAIN_DEVSTAT_PRIMARY_MMC_PORT_MASK) >>
