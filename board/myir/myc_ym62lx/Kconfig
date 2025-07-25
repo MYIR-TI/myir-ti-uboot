@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Copyright (C) 2025 Texas Instruments Incorporated - https://www.ti.com/
+#
+
+if TARGET_MYC_YM62LX
+
+config SYS_BOARD
+       default "myc_ym62lx"
+
+config SYS_VENDOR
+       default "myir"
+
+config SYS_CONFIG_NAME
+       default "myc_ym62lx"
+
+source "board/myir/common/Kconfig"
+
+endif
