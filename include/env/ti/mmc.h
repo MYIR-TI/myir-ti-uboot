@@ -15,7 +15,8 @@
 	"args_mmc=run finduuid;setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=PARTUUID=${uuid} rw " \
-		"rootfstype=${mmcrootfstype}\0" \
+		"rootfstype=${mmcrootfstype} " \
+		"loglevel=3\0" \
 	"loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
 		"source ${loadaddr}\0" \
