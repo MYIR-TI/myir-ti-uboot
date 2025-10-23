@@ -35,8 +35,17 @@
 #include <linux/ctype.h>
 #include <linux/lzo.h>
 #include <linux/ioport.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+
+#define WKUP_MMR0_JTAG_USER_ID	0x43000018  
+
+
+#define DEVICE_ID_6231		0x3a08e4e1
+#define DEVICE_ID_6252		0x3a146521
+#define DEVICE_ID_6254		0x3a246521  
 
 /*
  * Here are the type we know about. One day we might allow drivers to
@@ -1079,6 +1088,7 @@ int fdtdec_setup_memory_banksize(void)
 {
 	int bank, ret, reg = 0;
 	struct resource res;
+	bool autosize = false;
 	ofnode mem = ofnode_null();
 
 	mem = get_next_memory_node(mem);
@@ -1106,6 +1116,44 @@ int fdtdec_setup_memory_banksize(void)
 		gd->bd->bi_dram[bank].start = (phys_addr_t)res.start;
 		gd->bd->bi_dram[bank].size =
 			(phys_size_t)(res.end - res.start + 1);
+
+		autosize = ofnode_read_bool(mem, "auto-size");
+
+			if(autosize){
+				u64 new_size;
+				u64 start = gd->bd->bi_dram[bank].start;
+				u64 size = gd->bd->bi_dram[bank].size;
+
+				u32 device_id = 0;
+
+				device_id = readl(WKUP_MMR0_JTAG_USER_ID);
+
+				if (device_id == DEVICE_ID_6231) {
+
+					new_size = 0x40000000;  /* 1GB */
+					printk("DEBUG:6231 device，set 1G DRAM\n");
+				} else if (device_id == DEVICE_ID_6252) {
+
+					new_size = 0x80000000;  /* 2GB */
+					printk("DEBUG:6252 device，set 2G DRAM\n");
+				} else if(device_id == DEVICE_ID_6254){
+
+					new_size = 0x80000000;  /* 2GB */
+					printk("DEBUG:6254 device，set 2G DRAM\n");
+				}
+				
+
+				
+				if (new_size != size) {
+					debug("sized to %llx\n", new_size);
+					size = new_size;
+					gd->bd->bi_dram[bank].size = size;
+				
+				} else {
+					debug("OK\n");
+	
+				}
+			}
 
 		debug("%s: DRAM Bank #%d: start = 0x%llx, size = 0x%llx\n",
 		      __func__, bank,
