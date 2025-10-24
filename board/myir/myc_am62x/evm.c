@@ -218,6 +218,7 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 }
 #endif
 
+
 #if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {

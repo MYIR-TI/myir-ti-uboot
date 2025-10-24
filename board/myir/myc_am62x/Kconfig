@@ -18,7 +18,7 @@ source "board/myir/common/Kconfig"
 
 endif
 
-if TARGET_AM625_R5_EVM
+if TARGET_MYC_AM62X_R5
 
 config SYS_BOARD
        default "myc_am62x"

@@ -6,8 +6,8 @@
  *	Suman Anna <s-anna@ti.com>
  */
 
-#ifndef __CONFIG_AM625_EVM_H
-#define __CONFIG_AM625_EVM_H
+#ifndef __CONFIG_MYC_AM62X_H
+#define __CONFIG_MYC_AM62X_H
 
 /**
  * define AM62X_SK_TIBOOT3_IMAGE_GUID - firmware GUID for AM62X sk tiboot3.bin
@@ -36,4 +36,4 @@
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
 
-#endif /* __CONFIG_AM625_EVM_H */
+#endif /* __CONFIG_AM62X_H */

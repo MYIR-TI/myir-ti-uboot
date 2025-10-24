@@ -4,12 +4,12 @@
  * Copyright (C) 2021-2022 Texas Instruments Incorporated - https://www.ti.com/
  */
 
-#include "k3-am625-sk.dts"
-#include "k3-am62x-sk-ddr4-1600MTs.dtsi"
-#include "k3-am62-ddr.dtsi"
+#include "myd-am62x.dts"
+#include "myd-am62x-ddr4-1600MTs.dtsi"
+#include "myd-am62x-ddr.dtsi"
 
-#include "k3-am625-sk-u-boot.dtsi"
-#include "k3-am62-r5-sk-common.dtsi"
+#include "myd-am62x-u-boot.dtsi"
+#include "myd-am62x-r5-common.dtsi"
 
 &main_pktdma {
 	ti,sci = <&dm_tifs>;
