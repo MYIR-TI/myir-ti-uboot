@@ -146,6 +146,7 @@ CONFIG_SYSRESET=y
 CONFIG_SPL_SYSRESET=y
 CONFIG_DM_THERMAL=y
 CONFIG_FS_FAT_MAX_CLUSTSIZE=16384
+CONFIG_BOOTCOMMAND="run set_sd_rootfs;run envboot; run bootcmd_ti_mmc; bootflow scan -lb"
 CONFIG_SYS_MEM_TOP_HIDE=0x3800000
 
 #include <configs/am62x_a53_usbdfu.config>
