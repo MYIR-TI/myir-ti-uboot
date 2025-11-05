@@ -161,10 +161,8 @@ CONFIG_FS_FAT_MAX_CLUSTSIZE=16384
 CONFIG_EFI_SET_TIME=y
 CONFIG_SPL_GZIP=y
 CONFIG_BOOTCOMMAND="run set_sd_rootfs;run envboot; run bootcmd_ti_mmc; bootflow scan -lb"
-CONFIG_ENV_SIZE=0x1f000
-CONFIG_ENV_OFFSET=0x680000
-CONFIG_ENV_IS_IN_MMC=y
-
+CONFIG_PMIC_TPS65219=y
+CONFIG_DM_PMIC=y
 CONFIG_BOOTDELAY=0
 
 #include <configs/k3_efi_capsule.config>
