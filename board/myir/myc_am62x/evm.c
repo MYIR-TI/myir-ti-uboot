@@ -21,6 +21,13 @@
 #include <asm/arch/hardware.h>
 #include <dm/uclass.h>
 #include <asm/arch/k3-ddr.h>
+#include <net.h>
+#include <asm/gpio.h>
+#include <cpu_func.h>
+#include <dm/device.h>
+#include <power/pmic.h>
+#include <power/regulator.h>
+#include <power/tps65219.h>
 
 #include "../common/board_detect.h"
 #include "../common/fdt_ops.h"
@@ -175,6 +182,38 @@ static void setup_serial(void)
 #endif
 #endif
 
+#ifdef CONFIG_PMIC_TPS65219
+int do_pmic_init(void)
+{
+        struct udevice *dev;
+        int ret;
+
+        u8 buck1;
+
+        ret = uclass_get_device_by_driver(UCLASS_PMIC,DM_DRIVER_GET(pmic_tps65219), &dev);
+        if (ret){
+                /* No PMIC on board */
+                return -1;
+        }
+
+        ret = pmic_reg_write(dev,TPS65219_BUCK1_VOUT_REG, 0x8a);
+        if (ret){
+                printf("failed to write tps65219...\n");
+                return -1;
+        }
+        buck1 = pmic_reg_read(dev, TPS65219_BUCK1_VOUT_REG);
+        if(buck1 == 0x8a){
+                printf("BUCK1: vdd_core is 0.85v\n");
+        }
+        else if(buck1 == 0x86)
+        {
+                printf("BUCK1: vdd_core is 0.75v\n");
+        }
+
+        return 0;
+}
+#endif
+
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
@@ -182,6 +221,10 @@ int board_late_init(void)
 		setup_board_eeprom_env();
 		setup_serial();
 	}
+#ifdef CONFIG_PMIC_TPS65219
+        do_pmic_init();
+#endif
+
 
 	ti_set_fdt_env(NULL, NULL);
 	return 0;
@@ -217,6 +260,7 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 	}
 }
 #endif
+
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)

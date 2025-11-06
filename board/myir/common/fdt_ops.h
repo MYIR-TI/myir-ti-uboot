@@ -10,6 +10,7 @@
 
 #define TI_BOARD_NAME_MAX 20
 #define TI_FDT_FILE_MAX 200
+#define WKUP_MMR0_JTAG_USER_ID 0x43000018
 
 /**
  *  struct ti_fdt_map - mapping of device tree blob name to board name
