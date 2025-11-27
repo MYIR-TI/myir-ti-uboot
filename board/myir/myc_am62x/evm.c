@@ -218,12 +218,14 @@ int do_pmic_init(void)
 int board_late_init(void)
 {
 	if (IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT)) {
-		setup_board_eeprom_env();
+		//setup_board_eeprom_env();
 		setup_serial();
 	}
-#ifdef CONFIG_PMIC_TPS65219
-        do_pmic_init();
-#endif
+	       if (IS_ENABLED(CONFIG_PMIC_TPS65219)) {
+               do_pmic_init();
+       } else {
+               printf("DEBUG: CONFIG_PMIC_TPS65219 is disabled\n");
+       }
 
 
 	ti_set_fdt_env(NULL, NULL);
