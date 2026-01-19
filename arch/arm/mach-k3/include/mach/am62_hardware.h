@@ -114,7 +114,7 @@ static inline int k3_get_max_temp(void)
 {
 	switch (k3_get_temp_grade()) {
 	case JTAG_DEV_TEMP_INDUSTRIAL:
-		return 105;
+		return 120;
 	case JTAG_DEV_TEMP_AUTOMOTIVE:
 		return 125;
 	case JTAG_DEV_TEMP_COMMERCIAL:
