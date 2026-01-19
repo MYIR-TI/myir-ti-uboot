@@ -1134,8 +1134,8 @@ int fdtdec_setup_memory_banksize(void)
 					printk("DEBUG:6231 device，set 1G DRAM\n");
 				} else if (device_id == DEVICE_ID_6252) {
 
-					new_size = 0x80000000;  /* 2GB */
-					printk("DEBUG:6252 device，set 2G DRAM\n");
+					new_size = 0x40000000;  /* 1GB */
+					printk("DEBUG:6252 device，set 1G DRAM\n");
 				} else if(device_id == DEVICE_ID_6254){
 
 					new_size = 0x80000000;  /* 2GB */
