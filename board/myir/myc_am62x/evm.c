@@ -28,6 +28,9 @@
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/tps65219.h>
+#include <i2c.h>
+#include <linux/delay.h>
+#include <linux/errno.h>
 
 #include "../common/board_detect.h"
 #include "../common/fdt_ops.h"
@@ -214,6 +217,134 @@ int do_pmic_init(void)
 }
 #endif
 
+/* NCA9555 I2C GPIO Expander definitions */
+#define NCA9555_I2C_BUS		2	/* I2C bus number, adjust if needed */
+#define NCA9555_I2C_ADDR	0x20	/* I2C address (0100 A2 A1 A0), adjust A0/A1/A2 if needed */
+
+/* NCA9555 Register addresses */
+#define NCA9555_REG_INPUT_PORT0	0x00
+#define NCA9555_REG_INPUT_PORT1	0x01
+#define NCA9555_REG_OUTPUT_PORT0	0x02
+#define NCA9555_REG_OUTPUT_PORT1	0x03
+#define NCA9555_REG_POLARITY_INV0	0x04
+#define NCA9555_REG_POLARITY_INV1	0x05
+#define NCA9555_REG_CONFIG_PORT0	0x06
+#define NCA9555_REG_CONFIG_PORT1	0x07
+
+/* IO0_2 is bit 2 of Port 0 */
+#define NCA9555_IO0_2_BIT	(1 << 2)
+
+/**
+ * nca9555_reset_io0_2() - Reset device via NCA9555 IO0_2 pin
+ *
+ * This function performs a reset sequence on IO0_2:
+ * 1. Configure IO0_2 as output
+ * 2. Pull IO0_2 low
+ * 3. Wait for reset pulse
+ * 4. Pull IO0_2 high
+ *
+ * Return: 0 on success, negative on error
+ */
+static int nca9555_reset_io0_2(void)
+{
+	struct udevice *bus, *dev;
+	u8 config_val, output_val;
+	int ret, bus_num;
+	u8 test_addr;
+
+	/* Get I2C bus */
+	ret = uclass_get_device_by_seq(UCLASS_I2C, NCA9555_I2C_BUS, &bus);
+	if (ret) {
+		/* Try to find any available I2C bus */
+		for (bus_num = 0; bus_num < 4; bus_num++) {
+			ret = uclass_get_device_by_seq(UCLASS_I2C, bus_num, &bus);
+			if (!ret)
+				break;
+		}
+		if (ret) {
+			printf("NCA9555: No I2C bus available\n");
+			return ret;
+		}
+	}
+
+	/* Ensure I2C bus is probed/initialized */
+	ret = device_probe(bus);
+	if (ret && ret != -EPERM) {
+		printf("NCA9555: Failed to probe I2C bus: %d\n", ret);
+		return ret;
+	}
+
+	/* Wait a bit for I2C bus to be ready */
+	mdelay(10);
+
+	/* Try to probe NCA9555 device */
+	ret = dm_i2c_probe(bus, NCA9555_I2C_ADDR, 0, &dev);
+	if (ret) {
+		/* Try scanning common addresses */
+		for (test_addr = 0x20; test_addr <= 0x27; test_addr++) {
+			ret = dm_i2c_probe(bus, test_addr, 0, &dev);
+			if (!ret)
+				break;
+		}
+		if (ret) {
+			printf("NCA9555: Device not found on I2C bus\n");
+			return ret;
+		}
+	}
+
+	/* Set offset length to 1 byte */
+	ret = i2c_set_chip_offset_len(dev, 1);
+	if (ret) {
+		printf("NCA9555: Failed to set offset length: %d\n", ret);
+		return ret;
+	}
+
+	/* Read current configuration register (Port 0) */
+	ret = dm_i2c_reg_read(dev, NCA9555_REG_CONFIG_PORT0);
+	if (ret < 0) {
+		printf("NCA9555: Failed to read config register: %d\n", ret);
+		return ret;
+	}
+	config_val = (u8)ret;
+
+	/* Configure IO0_2 as output (clear bit 2: 0=output, 1=input) */
+	config_val &= ~NCA9555_IO0_2_BIT;
+	ret = dm_i2c_reg_write(dev, NCA9555_REG_CONFIG_PORT0, config_val);
+	if (ret) {
+		printf("NCA9555: Failed to write config register: %d\n", ret);
+		return ret;
+	}
+
+	/* Read current output register (Port 0) */
+	ret = dm_i2c_reg_read(dev, NCA9555_REG_OUTPUT_PORT0);
+	if (ret < 0) {
+		printf("NCA9555: Failed to read output register: %d\n", ret);
+		return ret;
+	}
+	output_val = (u8)ret;
+
+	/* Pull IO0_2 low (clear bit 2) */
+	output_val &= ~NCA9555_IO0_2_BIT;
+	ret = dm_i2c_reg_write(dev, NCA9555_REG_OUTPUT_PORT0, output_val);
+	if (ret) {
+		printf("NCA9555: Failed to write output register (low): %d\n", ret);
+		return ret;
+	}
+
+	/* Wait for reset pulse (10ms) */
+	mdelay(10);
+
+	/* Pull IO0_2 high (set bit 2) */
+	output_val |= NCA9555_IO0_2_BIT;
+	ret = dm_i2c_reg_write(dev, NCA9555_REG_OUTPUT_PORT0, output_val);
+	if (ret) {
+		printf("NCA9555: Failed to write output register (high): %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
@@ -223,10 +354,10 @@ int board_late_init(void)
 	}
 	       if (IS_ENABLED(CONFIG_PMIC_TPS65219)) {
                do_pmic_init();
-       } else {
-               printf("DEBUG: CONFIG_PMIC_TPS65219 is disabled\n");
        }
 
+	/* Reset device via NCA9555 IO0_2 */
+	nca9555_reset_io0_2();
 
 	ti_set_fdt_env(NULL, NULL);
 	return 0;
